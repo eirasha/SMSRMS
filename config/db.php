@@ -1,12 +1,13 @@
 <?php
 $host = "localhost";
-$user = "root";
-$pass = "";
-$db   = "smsrms";
+$user = "root";  // default XAMPP
+$pass = "";      // default XAMPP
+$dbname = "smsrms";
 
-$conn = mysqli_connect($host, $user, $pass, $db);
-
-if (!$conn) {
-    die("Database connection failed: " . mysqli_connect_error());
+try {
+    $conn = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    die("Connection failed: " . $e->getMessage());
 }
 ?>

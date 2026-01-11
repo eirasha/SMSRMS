@@ -1,53 +1,63 @@
 <?php
 session_start();
-include '../config/db.php';
+require_once __DIR__ . '/../config/db.php';
+
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'customer') {
+    header("Location: ../auth/login.php");
+    exit;
+}
 
 $customer_id = $_SESSION['user_id'];
-
-$sql = "SELECT b.*, u.name AS massager_name
-        FROM bookings b
-        JOIN users u ON b.massager_id = u.id
-        WHERE b.customer_id = ?
-        ORDER BY b.created_at DESC";
-
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $customer_id);
-$stmt->execute();
-$result = $stmt->get_result();
+$stmt = $conn->prepare("
+    SELECT b.*, s.name AS service_name, m.username AS massager_name
+    FROM bookings b
+    JOIN services s ON b.service_id = s.id
+    LEFT JOIN users m ON b.massager_id = m.id
+    WHERE b.customer_id = ?
+    ORDER BY b.booking_date DESC
+");
+$stmt->execute([$customer_id]);
+$bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <h2>My Bookings</h2>
 
-<?php while($b = $result->fetch_assoc()): ?>
-<p>
-🧑‍💆 <?= $b['massager_name'] ?> |
-📅 <?= $b['booking_date'] ?> |
-⏰ <?= $b['start_time'] ?> - <?= $b['end_time'] ?> |
-📌 <?= $b['status'] ?> |
-💳 <?= $b['payment_status'] ?>
-</p>
-
-<?php if ($b['status'] == 'approved' && $b['payment_status'] == 'unpaid'): ?>
-<form action="pay.php" method="POST">
-  <input type="hidden" name="booking_id" value="<?= $b['id'] ?>">
-  <select name="payment_method">
-    <option value="qr">QR</option>
-    <option value="cash">Cash</option>
-  </select>
-  <button>Pay</button>
-</form>
-<?php endif; ?>
-
-<?php
-$fb = $conn->prepare("SELECT id FROM feedback WHERE booking_id=?");
-$fb->bind_param("i", $b['id']);
-$fb->execute();
-$hasFeedback = $fb->get_result()->num_rows > 0;
-?>
-
-<?php if ($b['status'] == 'completed' && !$hasFeedback): ?>
-  <a href="feedback.php?booking_id=<?= $b['id'] ?>">Give Feedback</a>
-<?php endif; ?>
-
-<hr>
-<?php endwhile; ?>
+<table border="1" cellpadding="5">
+    <tr>
+        <th>Service</th>
+        <th>Massager</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Status</th>
+        <th>Payment</th>
+        <th>Action</th>
+    </tr>
+    <?php foreach($bookings as $b): ?>
+    <?php
+        // Color-code status
+        $statusColor = match($b['status']) {
+            'pending' => 'orange',
+            'approved' => 'blue',
+            'completed' => 'green',
+            'cancelled' => 'red',
+            default => 'black',
+        };
+        $paymentColor = $b['payment_status']=='paid' ? 'green' : 'orange';
+    ?>
+    <tr>
+        <td><?php echo htmlspecialchars($b['service_name']); ?></td>
+        <td><?php echo htmlspecialchars($b['massager_name'] ?? '-'); ?></td>
+        <td><?php echo $b['booking_date']; ?></td>
+        <td><?php echo $b['booking_time']; ?></td>
+        <td style="color:<?php echo $statusColor; ?>;"><?php echo ucfirst($b['status']); ?></td>
+        <td style="color:<?php echo $paymentColor; ?>;"><?php echo ucfirst($b['payment_status']); ?></td>
+        <td>
+            <?php if($b['payment_status']=='pending'): ?>
+                <a href="payment.php?booking_id=<?php echo $b['id']; ?>">Pay Now</a>
+            <?php else: ?>
+                -
+            <?php endif; ?>
+        </td>
+    </tr>
+    <?php endforeach; ?>
+</table>

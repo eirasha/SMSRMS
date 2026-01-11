@@ -15,9 +15,7 @@
 
 <p>No account? <a href="register.php">Register here</a></p>
 
-<a href="admin/dashboard.php">Admin Dashboard</a>
-<a href="customer/bookings.php">Customer Bookings</a>
-<a href="massager/bookings.php">Massager Bookings</a>
+
 
 </body>
 </html>

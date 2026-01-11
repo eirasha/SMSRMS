@@ -1,64 +1,61 @@
 <?php
 session_start();
-include '../config/db.php';
+require_once __DIR__ . '/../config/db.php';
 
-$booking_id = $_GET['booking_id'];
-$customer_id = $_SESSION['user_id'];
-
-/* Verify booking belongs to customer & completed */
-$check = $conn->prepare("
-  SELECT massager_id FROM bookings
-  WHERE id=? AND customer_id=? AND status='completed'
-");
-$check->bind_param("ii", $booking_id, $customer_id);
-$check->execute();
-$booking = $check->get_result()->fetch_assoc();
-
-if (!$booking) {
-  die("Invalid feedback request.");
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'customer') {
+    header("Location: ../auth/login.php");
+    exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-  $rating  = $_POST['rating'];
-  $comment = $_POST['comment'];
+$customer_id = $_SESSION['user_id'];
 
-  $insert = $conn->prepare("
-    INSERT INTO feedback
-    (booking_id, customer_id, massager_id, rating, comment)
-    VALUES (?,?,?,?,?)
-  ");
+// Fetch completed bookings without feedback
+$stmt = $conn->prepare("
+    SELECT b.id AS booking_id, s.name AS service_name, m.username AS massager_name
+    FROM bookings b
+    JOIN services s ON b.service_id = s.id
+    LEFT JOIN users m ON b.massager_id = m.id
+    WHERE b.customer_id = ? AND b.status='completed' 
+    AND NOT EXISTS (SELECT 1 FROM feedback f WHERE f.booking_id = b.id)
+");
+$stmt->execute([$customer_id]);
+$bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-  $insert->bind_param(
-    "iiiis",
-    $booking_id,
-    $customer_id,
-    $booking['massager_id'],
-    $rating,
-    $comment
-  );
+// Handle feedback submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $booking_id = $_POST['booking_id'];
+    $rating = $_POST['rating'];
+    $comment = $_POST['comment'];
 
-  $insert->execute();
-  header("Location: my_bookings.php");
-  exit;
+    $stmt = $conn->prepare("INSERT INTO feedback (booking_id, rating, comment) VALUES (?, ?, ?)");
+    if ($stmt->execute([$booking_id, $rating, $comment])) {
+        $success = "Feedback submitted successfully!";
+    } else {
+        $error = "Failed to submit feedback.";
+    }
 }
 ?>
 
-<h2>Give Feedback</h2>
+<h2>Leave Feedback</h2>
 
-<form method="POST">
-  <label>Rating (1–5)</label>
-  <select name="rating" required>
-    <option value="5">★★★★★</option>
-    <option value="4">★★★★</option>
-    <option value="3">★★★</option>
-    <option value="2">★★</option>
-    <option value="1">★</option>
-  </select>
+<?php if(isset($error)) echo "<p style='color:red;'>$error</p>"; ?>
+<?php if(isset($success)) echo "<p style='color:green;'>$success</p>"; ?>
 
-  <br><br>
-
-  <textarea name="comment" placeholder="Write your feedback..."></textarea>
-  <br><br>
-
-  <button>Submit</button>
-</form>
+<?php if(count($bookings) == 0): ?>
+    <p>No completed bookings available for feedback.</p>
+<?php else: ?>
+    <?php foreach($bookings as $b): ?>
+        <form method="post" style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
+            <strong><?php echo htmlspecialchars($b['service_name']); ?></strong> by <?php echo htmlspecialchars($b['massager_name']); ?><br>
+            Rating: 
+            <select name="rating" required>
+                <option value="">--Select--</option>
+                <?php for($i=1;$i<=5;$i++) echo "<option value='$i'>$i</option>"; ?>
+            </select><br>
+            Comment:<br>
+            <textarea name="comment" required></textarea><br><br>
+            <input type="hidden" name="booking_id" value="<?php echo $b['booking_id']; ?>">
+            <button type="submit">Submit Feedback</button>
+        </form>
+    <?php endforeach; ?>
+<?php endif; ?>

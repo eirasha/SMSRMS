@@ -1,43 +1,52 @@
 <?php
 session_start();
-include '../config/db.php';
+require_once __DIR__ . '/../config/db.php';
 
-if ($_SESSION['role'] != 'massager') {
-  header("Location: ../index.php");
-  exit;
+// Only massager can access
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'massager') {
+    header("Location: ../auth/login.php");
+    exit;
 }
 
 $massager_id = $_SESSION['user_id'];
 
-$sql = "SELECT b.*, u.name AS customer_name
-        FROM bookings b
-        JOIN users u ON b.customer_id = u.id
-        WHERE b.massager_id = ?
-        ORDER BY b.booking_date, b.start_time";
-
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $massager_id);
-$stmt->execute();
-$result = $stmt->get_result();
+// Fetch bookings assigned to this massager
+$stmt = $conn->prepare("
+    SELECT b.*, s.name AS service_name, u.username AS customer_name
+    FROM bookings b
+    JOIN services s ON b.service_id = s.id
+    JOIN users u ON b.customer_id = u.id
+    WHERE b.massager_id = ?
+    ORDER BY b.booking_date DESC
+");
+$stmt->execute([$massager_id]);
+$bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<h2>My Assigned Bookings</h2>
+<h2>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?> (Massager)</h2>
 
-<?php while($b = $result->fetch_assoc()): ?>
-<p>
-👤 <?= $b['customer_name'] ?> |
-📅 <?= $b['booking_date'] ?> |
-⏰ <?= $b['start_time'] ?> - <?= $b['end_time'] ?> |
-📌 <?= $b['status'] ?> |
-💳 <?= $b['payment_status'] ?>
-</p>
-
-<?php if ($b['status'] == 'approved' && $b['payment_status'] == 'paid'): ?>
-<form action="update_status.php" method="POST">
-  <input type="hidden" name="booking_id" value="<?= $b['id'] ?>">
-  <button>Mark as Completed</button>
-</form>
-<?php endif; ?>
-
+<nav>
+    <a href="dashboard.php">Dashboard</a> | 
+    <a href="../auth/logout.php">Logout</a>
+</nav>
 <hr>
-<?php endwhile; ?>
+
+<h3>My Bookings</h3>
+<table border="1" cellpadding="5">
+    <tr>
+        <th>Customer</th>
+        <th>Service</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Status</th>
+    </tr>
+    <?php foreach($bookings as $b) { ?>
+    <tr>
+        <td><?php echo htmlspecialchars($b['customer_name']); ?></td>
+        <td><?php echo htmlspecialchars($b['service_name']); ?></td>
+        <td><?php echo $b['booking_date']; ?></td>
+        <td><?php echo $b['booking_time']; ?></td>
+        <td><?php echo ucfirst($b['status']); ?></td>
+    </tr>
+    <?php } ?>
+</table>
