@@ -59,10 +59,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 
-<div class="auth-container">
-    <div style="display: flex; justify-content: center;">
-  <img src="your-image.jpg" alt="Centered Image">
-</div>
+
+<!-- LOGO -->
+    <div class="logo-container">
+        <div style="display: flex; justify-content: center;">
+        <img src="../uploads/logo.png" alt="System Logo" class="logo" style="width: 120px; height: auto;" class="centered-image">
+        
+    </div>
+
 
     <h2>Register</h2>
 

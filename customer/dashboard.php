@@ -50,7 +50,7 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <body>
 
 <header class="header">
-    <h1>Welcome, <?= htmlspecialchars($_SESSION['username']); ?> 🌻</h1>
+    <h1>Welcome, <?= htmlspecialchars($_SESSION['username']); ?> </h1>
     <nav class="nav-bar">
         <a href="dashboard.php">Dashboard</a>
         <a href="book_service.php">Book Slot</a>
