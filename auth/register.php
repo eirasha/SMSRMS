@@ -40,22 +40,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<h2>Register</h2>
+
 
 <!-- Display errors / success -->
 <?php if (isset($error)) { echo "<p style='color:red;'>$error</p>"; } ?>
 <?php if (isset($success)) { echo "<p style='color:green;'>$success</p>"; } ?>
 
-<form method="post">
-    Username: <input type="text" name="username" value="<?php echo isset($username) ? htmlspecialchars($username) : ''; ?>" required><br>
-    Email: <input type="email" name="email" value="<?php echo isset($email) ? htmlspecialchars($email) : ''; ?>" required><br>
-    Password: <input type="password" name="password" required><br>
-    Role: 
-    <select name="role" required>
-        <option value="">--Select Role--</option>
-        <option value="customer" <?php if(isset($role) && $role=="customer") echo "selected"; ?>>Customer</option>
-        <option value="massager" <?php if(isset($role) && $role=="massager") echo "selected"; ?>>Massager</option>
-        
-    </select><br><br>
-    <button type="submit">Register</button>
-</form>
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register - Sunflower Theme</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<div class="auth-container">
+    <div style="display: flex; justify-content: center;">
+  <img src="your-image.jpg" alt="Centered Image">
+</div>
+
+    <h2>Register</h2>
+
+    <?php if (isset($error)) : ?>
+        <div class="alert error"><?= $error ?></div>
+    <?php endif; ?>
+    <?php if (isset($success)) : ?>
+        <div class="alert success"><?= $success ?></div>
+    <?php endif; ?>
+
+    <form method="post" class="auth-form">
+        <label>Username</label>
+        <input type="text" name="username" value="<?= isset($username) ? htmlspecialchars($username) : '' ?>" required>
+
+        <label>Email</label>
+        <input type="email" name="email" value="<?= isset($email) ? htmlspecialchars($email) : '' ?>" required>
+
+        <label>Password</label>
+        <input type="password" name="password" required>
+
+        <button type="submit" class="btn">Register</button>
+    </form>
+
+    <p class="login-link">Already have an account? <a href="login.php">Login here</a></p>
+</div>
+
+</body>
+</html>

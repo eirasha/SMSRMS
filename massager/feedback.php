@@ -1,20 +1,22 @@
 <?php
 session_start();
 require_once __DIR__ . '/../config/db.php';
+$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'massager') {
+/* SECURITY CHECK */
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'massager') {
     header("Location: ../auth/login.php");
     exit;
 }
 
 $massager_id = $_SESSION['user_id'];
 
-// Fetch feedback for bookings assigned to this massager
+/* FETCH FEEDBACK RELATED TO MASSAGER BOOKINGS */
 $stmt = $conn->prepare("
-    SELECT f.rating, f.comment, s.name AS service_name, c.username AS customer_name
+    SELECT f.*, s.name AS service_name, u.username AS customer_name
     FROM feedback f
     JOIN bookings b ON f.booking_id = b.id
-    JOIN users c ON b.customer_id = c.id
+    JOIN users u ON b.customer_id = u.id
     JOIN services s ON b.service_id = s.id
     WHERE b.massager_id = ?
     ORDER BY f.created_at DESC
@@ -23,25 +25,80 @@ $stmt->execute([$massager_id]);
 $feedbacks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<h2>Feedback Received</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feedback Received</title>
+<link rel="stylesheet" href="../css/massager.css">
+</head>
+<body>
 
-<?php if(count($feedbacks)==0): ?>
-    <p>No feedback yet.</p>
+<header class="header">
+    <h1>Feedback Received 📝</h1>
+    <nav class="nav-bar">
+        <a href="dashboard.php">Dashboard</a>
+        <a href="my_bookings.php">Manage Bookings</a>
+        <a href="feedback.php">Feedback</a>
+        <a href="availability.php">Update Availability</a>
+        <a href="../auth/logout.php">Logout</a>
+    </nav>
+</header>
+
+<div class="page-content">
+
+<?php if (empty($feedbacks)): ?>
+    <p class="info-msg">No feedback yet.</p>
 <?php else: ?>
-    <table border="1" cellpadding="5">
-        <tr>
-            <th>Customer</th>
-            <th>Service</th>
-            <th>Rating</th>
-            <th>Comment</th>
-        </tr>
-        <?php foreach($feedbacks as $f): ?>
-        <tr>
-            <td><?php echo htmlspecialchars($f['customer_name']); ?></td>
-            <td><?php echo htmlspecialchars($f['service_name']); ?></td>
-            <td><?php echo $f['rating']; ?></td>
-            <td><?php echo htmlspecialchars($f['comment']); ?></td>
-        </tr>
-        <?php endforeach; ?>
-    </table>
+    <?php foreach ($feedbacks as $f): ?>
+        <div class="card feedback-card">
+            <strong>Customer:</strong> <?= htmlspecialchars($f['customer_name']) ?><br>
+            <strong>Service:</strong> <?= htmlspecialchars($f['service_name']) ?><br>
+            <strong>Rating:</strong> ⭐ <?= $f['rating'] ?>/5
+            <?php if ($f['is_flagged']): ?>
+                <span class="flagged"> 🚩 Flagged</span>
+            <?php endif; ?>
+            <p><strong>Comment:</strong><br><?= nl2br(htmlspecialchars($f['comment'])) ?></p>
+
+            <!-- FETCH REPLIES -->
+            <?php
+            $replyStmt = $conn->prepare("
+                SELECT r.*, u.username
+                FROM feedback_replies r
+                JOIN users u ON r.replied_by = u.id
+                WHERE r.feedback_id = ?
+                ORDER BY r.created_at ASC
+            ");
+            $replyStmt->execute([$f['id']]);
+            $replies = $replyStmt->fetchAll(PDO::FETCH_ASSOC);
+            ?>
+            <div class="replies">
+                <strong>Replies:</strong>
+                <?php if (empty($replies)): ?>
+                    <em>No replies yet.</em>
+                <?php else: ?>
+                    <?php foreach ($replies as $r): ?>
+                        <div class="reply">
+                            <strong><?= ucfirst($r['role']) ?> (<?= htmlspecialchars($r['username']) ?>):</strong>
+                            <p><?= nl2br(htmlspecialchars($r['reply'])) ?></p>
+                            <small><?= $r['created_at'] ?></small>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+
+            <!-- MASSAGER REPLY FORM -->
+            <form method="post" action="reply_feedback.php" class="reply-form">
+                <input type="hidden" name="feedback_id" value="<?= $f['id'] ?>">
+                <textarea name="reply" required placeholder="Reply to customer..."></textarea>
+                <button type="submit">Reply</button>
+            </form>
+        </div>
+    <?php endforeach; ?>
 <?php endif; ?>
+
+</div>
+
+</body>
+</html>

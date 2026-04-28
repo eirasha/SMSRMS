@@ -1,0 +1,1307 @@
+/* ==== GENERAL ==== */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #fff9e6; /* soft yellow */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.auth-container {
+    background-color: #fff8e1;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 400px;
+    box-sizing: border-box;
+}
+
+h2 {
+    color: #e1ad01;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.auth-form label {
+    display: block;
+    margin-top: 1rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.auth-form input,
+.auth-form select {
+    width: 100%;
+    padding: 0.6rem;
+    margin-top: 0.3rem;
+    border-radius: 8px;
+    border: 1px solid #ffd54f;
+    box-sizing: border-box;
+}
+
+.auth-form input:focus,
+.auth-form select:focus {
+    outline: none;
+    border-color: #ffca28;
+    box-shadow: 0 0 5px #ffca28;
+}
+
+.btn {
+    width: 100%;
+    margin-top: 1.5rem;
+    padding: 0.8rem;
+    background-color: #ffca28;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #ffc107;
+}
+
+.alert {
+    padding: 0.8rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+.alert.error {
+    background-color: #fddede;
+    color: #b71c1c;
+}
+
+.alert.success {
+    background-color: #e6f4ea;
+    color: #1b5e20;
+}
+
+.login-link {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.login-link a {
+    color: #e1ad01;
+    font-weight: bold;
+}
+
+/* ==== RESPONSIVE ==== */
+@media (max-width: 480px) {
+    .auth-container {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+}
+
+
+/* ==== HEADER ==== */
+.header {
+    background-color: #ffd54f;
+    padding: 1rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.header h1 {
+    color: #e1ad01;
+    margin: 0 0 0.5rem 0;
+}
+
+.nav-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.nav-bar a {
+    padding: 0.5rem 1rem;
+    background-color: #ffca28;
+    border-radius: 8px;
+    font-weight: bold;
+    color: #333;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.nav-bar a:hover {
+    background-color: #ffc107;
+}
+
+.nav-bar a.logout {
+    background-color: #f06292;
+    color: #fff;
+}
+
+.nav-bar a.logout:hover {
+    background-color: #ec407a;
+}
+
+/* ==== CONTAINER ==== */
+.container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* ==== DASHBOARD CARDS ==== */
+.dashboard-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.card {
+    flex: 1 1 220px;  /* flexible width with min size */
+    max-width: 250px; /* prevent stretching too much on large screens */
+    background-color: #fff8e1;
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+}
+
+.card h3 {
+    color: #e1ad01;
+    margin-bottom: 0.5rem;
+}
+
+.card p {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* ==== NAVIGATION ==== */
+.nav-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.nav-bar a {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: bold;
+    color: #333;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.nav-bar a:hover {
+    background-color: #ffc107;
+}
+
+.nav-bar a.logout {
+    background-color: #f06292;
+    color: #fff;
+}
+
+.nav-bar a.logout:hover {
+    background-color: #ec407a;
+}
+
+/* ==== RESPONSIVE ==== */
+@media (max-width: 768px) {
+    .dashboard-cards {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .card {
+        width: 90%;      /* almost full width on small screens */
+        max-width: none; /* remove max-width restriction */
+    }
+
+    .nav-bar {
+        flex-direction: column;
+    }
+
+    .nav-bar a {
+        width: 90%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .card p {
+        font-size: 1.2rem; /* slightly smaller on very small devices */
+    }
+
+    .header h1 {
+        font-size: 1.5rem;
+    }
+}
+
+/* ==== GENERAL ==== */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #fff9e6;
+    height: 100%;
+}
+
+/* ==== HEADER ==== */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #ffd54f;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 0.8rem 1rem;
+}
+
+.header h1 {
+    color: #e1ad01;
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+/* ===== NAV BAR ===== */
+.nav-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    padding: 0.5rem;
+}
+
+.nav-bar a {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: bold;
+    color: #333;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.nav-bar a:hover {
+    background-color: #ffc107;
+}
+
+.nav-bar a.logout {
+    background-color: #f06292;
+    color: #fff;
+}
+
+.nav-bar a.logout:hover {
+    background-color: #ec407a;
+}
+
+/* ==== HAMBURGER BUTTON ==== */
+.nav-toggle {
+    display: none;
+    font-size: 2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #333;
+}
+
+/* ==== MAIN CONTENT ==== */
+.main-container {
+    margin-top: 120px; /* space for fixed header */
+    padding: 1rem;
+    min-height: calc(100vh - 120px);
+}
+
+.dashboard-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.card {
+    flex: 1 1 220px;
+    max-width: 250px;
+    background-color: #fff8e1;
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+}
+
+.card h3 {
+    color: #e1ad01;
+    margin-bottom: 0.5rem;
+}
+
+.card p {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* ==== RESPONSIVE ==== */
+@media (max-width: 768px) {
+    .nav-toggle {
+        display: block;
+    }
+
+    .nav-bar {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .nav-bar.show {
+        display: flex;
+    }
+
+    .nav-bar a {
+        width: 100%;
+        text-align: center;
+    }
+
+    .dashboard-cards {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .card {
+        width: 90%;
+        max-width: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .card p {
+        font-size: 1.2rem;
+    }
+
+    .header h1 {
+        font-size: 1.2rem;
+    }
+}
+/* ==== TABLE STYLING ==== */
+.table-wrapper {
+    overflow-x: auto; /* horizontal scroll on small screens */
+    margin: 1rem 0;
+}
+
+.booking-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff8e1;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.booking-table th,
+.booking-table td {
+    padding: 0.5rem 0.8rem;
+    text-align: left;
+    border-bottom: 1px solid #ffe082;
+}
+
+.booking-table th {
+    background-color: #ffd54f;
+    color: #333;
+    font-weight: bold;
+}
+
+.booking-table tr:hover {
+    background-color: #fff3e0;
+}
+
+/* Status update form */
+.status-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.status-form select {
+    padding: 0.3rem;
+    border-radius: 6px;
+    border: 1px solid #e1ad01;
+}
+
+.status-form .btn {
+    padding: 0.3rem 0.5rem;
+    background-color: #ffca28;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #333;
+    transition: background-color 0.2s;
+}
+
+.status-form .btn:hover {
+    background-color: #ffbf00;
+}
+
+/* ==== RESPONSIVE TABLE ==== */
+@media (max-width: 768px) {
+    .booking-table th,
+    .booking-table td {
+        font-size: 0.9rem;
+        padding: 0.4rem;
+    }
+
+    .status-form {
+        flex-direction: column;
+    }
+}
+
+/* Push content below fixed header */
+.page-content {
+    padding-top: 110px; /* desktop header height */
+}
+
+/* MOBILE FIX */
+@media (max-width: 768px) {
+
+    /* reduce header/nav height */
+    header, nav {
+        padding: 6px 10px !important;
+    }
+
+    nav a {
+        font-size: 12px;
+        padding: 4px 6px;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+
+    /* adjust spacing for smaller header */
+    .page-content {
+        padding-top: 70px;
+    }
+}
+
+
+
+
+
+/*b===============================
+bookings management
+================================ */
+
+
+/* ===============================
+   HEADER / NAV (Sticky Top)
+================================ */
+.header {
+    background: #f8d558; /* sunflower theme */
+    padding: 12px 20px;
+    border-bottom: 2px solid #e6d27a;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+nav-bar a.logout:hover {
+    background-color: #ec407a;
+}
+
+.nav-bar {
+    display: flex;
+    gap: 12px;
+}
+
+.nav-bar a {
+    text-decoration: none;
+    color: #5a3d00;
+    font-weight: 600;
+}
+
+.page-content {
+    padding: 100px 20px 20px 20px; /* top padding to avoid header overlap */
+}
+
+/* ===============================
+   TABLE
+================================ */
+.table-wrapper {
+    overflow-x: auto;
+    margin-top: 20px;
+}
+
+.booking-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.booking-table th,
+.booking-table td {
+    border: 1px solid #e2d27a;
+    padding: 8px 10px;
+    text-align: left;
+}
+
+.booking-table th {
+    background: #f7d046;
+    color: #5a3d00;
+    font-weight: 600;
+}
+
+.booking-table tr:nth-child(even) {
+    background: #fffbea;
+}
+
+.status-form select {
+    padding: 4px 6px;
+    border-radius: 6px;
+    border: 1px solid #edcd3d;
+    background: #fffef8;
+}
+
+.status-form .btn {
+    padding: 4px 8px;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(135deg, #f7d046, #f6c10e);
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* ===============================
+   MOBILE
+================================ */
+@media (max-width: 768px) {
+    .nav-bar {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ==== service management ==== */
+/* ===============================
+   GLOBAL
+================================ */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #fffbea; /* soft sunflower */
+}
+
+/* Page spacing (prevents header overlap) */
+.page-content {
+    max-width: 1000px;
+    margin: auto;
+    padding: 120px 16px 40px;
+}
+
+/* Mobile fix */
+@media (max-width: 768px) {
+    .page-content {
+        padding-top: 80px;
+    }
+}
+
+/* ===============================
+   HEADINGS
+================================ */
+h2, h3 {
+    color: #9c6b00;
+    margin-top: 0;
+}
+
+/* ===============================
+   NAV LINKS (NO STYLE CHANGE)
+================================ */
+.admin-nav {
+    margin-bottom: 20px;
+}
+
+.admin-nav a {
+    color: #9c6b00;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.admin-nav a:hover {
+    text-decoration: underline;
+}
+
+/* ===============================
+   MESSAGES
+================================ */
+.msg {
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+}
+
+.msg.success {
+    background: #eaffd0;
+    color: #3b7a00;
+}
+
+.msg.error {
+    background: #ffe1e1;
+    color: #a40000;
+}
+
+/* ===============================
+   FORM CARD
+================================ */
+.card {
+    background: #fff3bf;
+    padding: 16px;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+}
+
+.card label {
+    display: block;
+    margin-top: 12px;
+    font-weight: bold;
+}
+
+.card input,
+.card textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    border-radius: 8px;
+    border: 1px solid #e2c35c;
+    font-size: 14px;
+}
+
+.card textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.card button {
+    margin-top: 16px;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: #f6c90e;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.card button:hover {
+    background: #e8b800;
+}
+
+/* ===============================
+   TABLE
+================================ */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    min-width: 650px;
+    border-collapse: collapse;
+    background: white;
+}
+
+th {
+    background: #ffe066;
+    color: #6b4b00;
+}
+
+th, td {
+    padding: 10px;
+    border: 1px solid #f1d36b;
+    text-align: left;
+    font-size: 14px;
+}
+
+/* Mobile table font */
+@media (max-width: 768px) {
+    th, td {
+        font-size: 13px;
+    }
+}
+
+/* ===============================
+   RESET & BASE
+================================ */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #fffdf2;
+    color: #333;
+}
+
+/* ===============================
+   PAGE LAYOUT
+================================ */
+.page-content {
+    max-width: 1100px;
+    margin: auto;
+    padding: 110px 20px 40px;
+}
+
+@media (max-width: 768px) {
+    .page-content {
+        padding-top: 80px;
+    }
+}
+
+/* ===============================
+   HEADINGS
+================================ */
+h2 {
+    font-size: 26px;
+    color: #8a6200;
+    margin-bottom: 6px;
+}
+
+h3 {
+    margin-top: 30px;
+    font-size: 18px;
+    color: #a67800;
+}
+
+/* ===============================
+   NAV (CONSISTENT)
+================================ */
+.admin-nav {
+    margin: 12px 0 24px;
+}
+
+.admin-nav a {
+    margin-right: 10px;
+    color: #8a6200;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.admin-nav a:hover {
+    text-decoration: underline;
+}
+
+/* ===============================
+   MESSAGE BOX
+================================ */
+.msg {
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    font-size: 14px;
+}
+
+.msg.success {
+    background: #e9f8d9;
+    color: #3c7a00;
+    border-left: 4px solid #7cb342;
+}
+
+.msg.error {
+    background: #ffe6e6;
+    color: #9c1c1c;
+    border-left: 4px solid #d32f2f;
+}
+
+/* ===============================
+   SECTION CARD (NEW)
+================================ */
+.section {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.06);
+    margin-bottom: 28px;
+}
+
+/* ===============================
+   FORM STYLING
+================================ */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.form-grid .full {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+label {
+    font-weight: 600;
+    font-size: 14px;
+    color: #555;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 11px 12px;
+    margin-top: 6px;
+    border-radius: 10px;
+    border: 1px solid #e6d27a;
+    background: #fffef8;
+    font-size: 14px;
+}
+
+textarea {
+    min-height: 100px;
+}
+
+button {
+    background: linear-gradient(135deg, #f7d046, #f6c10e);
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+/* ===============================
+   TABLE
+================================ */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+}
+
+th {
+    background: #fff3b0;
+    color: #6b4b00;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.6px;
+}
+
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #f0e3a3;
+}
+
+tr:hover {
+    background: #fffbea;
+}
+
+/* ===============================
+   MOBILE TABLE
+================================ */
+@media (max-width: 768px) {
+    table {
+        font-size: 13px;
+    }
+}
+
+/* ---------------------------
+   PAGE CONTENT SPACING
+--------------------------- */
+.page-content {
+    max-width: 1100px;
+    margin: auto;
+    padding: 120px 20px 40px; /* top padding ensures header does not cover content */
+}
+
+@media (max-width: 768px) {
+    .page-content {
+        padding-top: 80px; /* smaller padding for mobile */
+    }
+}
+
+/* ---------------------------
+   SECTION CARDS FOR FORMS/TABLES
+--------------------------- */
+.section {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.06);
+    margin-bottom: 28px;
+}
+
+/* Form grid for Add Service form */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.form-grid .full {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* ===============================
+   payment management ==== */
+/* ===============================
+
+/* ===============================
+   PAGE CONTENT
+================================ */
+.page-content {
+    max-width: 1100px;
+    margin: auto;
+    padding: 120px 20px 40px; /* ensures content below header */
+}
+
+@media (max-width: 768px) {
+    .page-content {
+        padding-top: 80px;
+    }
+}
+
+/* ===============================
+   HEADINGS
+================================ */
+h2 {
+    font-size: 26px;
+    color: #8a6200;
+    margin-bottom: 6px;
+}
+
+h3 {
+    margin-top: 30px;
+    font-size: 18px;
+    color: #a67800;
+}
+
+/* ===============================
+   NAVIGATION
+================================ */
+.admin-nav {
+    margin: 12px 0 24px;
+}
+
+.admin-nav a {
+    margin-right: 10px;
+    color: #8a6200;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.admin-nav a:hover {
+    text-decoration: underline;
+}
+
+/* ===============================
+   MESSAGES
+================================ */
+.msg {
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    font-size: 14px;
+}
+
+.msg.success {
+    background: #e9f8d9;
+    color: #3c7a00;
+    border-left: 4px solid #7cb342;
+}
+
+.msg.error {
+    background: #ffe6e6;
+    color: #9c1c1c;
+    border-left: 4px solid #d32f2f;
+}
+
+/* ===============================
+   SECTION CARDS
+================================ */
+.section {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.06);
+    margin-bottom: 28px;
+}
+
+/* ===============================
+   FORMS
+================================ */
+form {
+    margin-top: 12px;
+}
+
+label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #555;
+}
+
+input[type="file"],
+select,
+input[type="text"],
+input[type="number"],
+textarea {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    border-radius: 10px;
+    border: 1px solid #e6d27a;
+    background: #fffef8;
+    font-size: 14px;
+}
+
+button {
+    background: linear-gradient(135deg, #f7d046, #f6c10e);
+    border: none;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+/* ===============================
+   TABLE
+================================ */
+.table-wrapper {
+    overflow-x: auto;
+    margin-top: 14px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+}
+
+th {
+    background: #fff3b0;
+    color: #6b4b00;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.6px;
+}
+
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #f0e3a3;
+}
+
+tr:hover {
+    background: #fffbea;
+}
+
+@media (max-width: 768px) {
+    table {
+        font-size: 13px;
+    }
+}
+
+/*===============================
+   FEEDBACK & REPLIES 
+================================ */
+
+/* ===============================
+   FEEDBACK CARDS
+================================ */
+.feedback-card {
+    background: #fff9e6;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 6px 22px rgba(0,0,0,0.08);
+    margin-bottom: 22px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.feedback-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.12);
+}
+
+.feedback-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.feedback-header strong {
+    color: #8a6200;
+    font-size: 16px;
+}
+
+.feedback-header .rating {
+    font-weight: 700;
+    color: #f7c600;
+}
+
+.feedback-header .flagged {
+    color: #d32f2f;
+    font-weight: 700;
+    margin-left: 10px;
+}
+
+.feedback-comment {
+    margin: 8px 0 12px;
+    color: #555;
+    line-height: 1.5;
+}
+
+.feedback-replies {
+    margin-left: 0;
+    margin-top: 10px;
+}
+
+.feedback-replies .reply {
+    border-left: 3px solid #888;
+    padding-left: 10px;
+    margin: 6px 0;
+    background: #fffbea;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.feedback-replies .reply strong {
+    color: #6b4b00;
+}
+
+.feedback-replies .reply small {
+    color: #888;
+    font-size: 12px;
+}
+
+.feedback-form textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #e6d27a;
+    background: #fffef8;
+    margin-top: 8px;
+    font-size: 14px;
+    min-height: 70px;
+}
+
+.feedback-form button {
+    margin-top: 6px;
+    background: linear-gradient(135deg, #f7d046, #f6c10e);
+    border: none;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.feedback-form button:hover {
+    opacity: 0.9;
+}
+
+/* ===============================
+   MOBILE RESPONSIVE
+================================ */
+@media (max-width: 768px) {
+    .feedback-card {
+        padding: 16px;
+    }
+
+    .feedback-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .feedback-header .rating {
+        font-size: 14px;
+    }
+
+    .feedback-comment {
+        font-size: 14px;
+    }
+}

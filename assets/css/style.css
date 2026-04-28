@@ -1,0 +1,55 @@
+/* assets/css/style.css */
+
+.feedback-card {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 12px 0;
+    background-color: #f9f9f9;
+}
+
+.feedback-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+}
+
+.feedback-comment {
+    margin: 8px 0;
+}
+
+.replies {
+    margin-left: 20px;
+    margin-top: 8px;
+}
+
+.reply-card {
+    border-left: 3px solid #888;
+    padding-left: 8px;
+    margin: 6px 0;
+    border-radius: 4px;
+    background-color: #fff;
+}
+
+.reply-admin { border-left-color: #007bff; }  /* Blue for admin */
+.reply-massager { border-left-color: #e1f341; } /* Green for massager */
+.reply-customer { border-left-color: #6c757d; } /* Gray for customer */
+
+.reply-form {
+    display: none;
+    margin-top: 8px;
+}
+
+button.reply-toggle {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button.reply-toggle:hover {
+    opacity: 0.8;
+}

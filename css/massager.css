@@ -1,0 +1,262 @@
+/* ===== Global Styles ===== */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f6f7fb;
+    margin: 0;
+    padding: 0;
+}
+
+.page-content {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 0 15px;
+}
+
+/* ===== Header & Nav ===== */
+.header {
+    background-color: #f3eb0d;
+    color: #fff;
+    padding: 15px 20px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 1.8em;
+}
+
+.nav-bar {
+    margin-top: 10px;
+}
+
+.nav-bar a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 10px;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+.nav-bar a:hover {
+    color: #ffeb3b;
+}
+
+/* ===== Cards ===== */
+.booking-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.card {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 15px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* ===== Booking Status ===== */
+.status {
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 6px;
+    color: #fff;
+}
+
+.status.pending { background-color: #ff9800; }
+.status.approved { background-color: #4CAF50; }
+.status.completed { background-color: #2196F3; }
+.status.cancelled { background-color: #f44336; }
+
+/* ===== Info Messages ===== */
+.info-msg {
+    color: #555;
+    font-style: italic;
+    margin: 10px 0;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .nav-bar a {
+        display: block;
+        margin: 6px 0;
+    }
+}
+
+
+/* ===== booking Cards ===== */
+/* Highlight today's sessions */
+.booking-card.highlight {
+    border: 2px solid #2196F3;
+    background-color: #e3f2fd;
+}
+
+/* Status badges */
+.status.pending { background-color: #ff9800; color: #fff; padding: 2px 6px; border-radius: 6px; }
+.status.approved { background-color: #4CAF50; color: #fff; padding: 2px 6px; border-radius: 6px; }
+.status.completed { background-color: #2196F3; color: #fff; padding: 2px 6px; border-radius: 6px; }
+.status.cancelled { background-color: #f44336; color: #fff; padding: 2px 6px; border-radius: 6px; }
+
+/* Status form inside card */
+.status-form {
+    margin-top: 10px;
+    display: flex;
+    gap: 6px;
+}
+
+.status-form select {
+    flex: 1;
+}
+
+.status-form button {
+    background-color: #2196F3;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.status-form button:hover {
+    background-color: #1976D2;
+}
+
+/* Cards layout */
+.booking-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+/* feedback cards */
+
+
+/* Feedback card */
+.feedback-card {
+    border: 1px solid #ccc;
+    padding: 16px;
+    margin: 12px 0;
+    border-radius: 8px;
+    background-color: #fafafa;
+}
+
+/* Flagged feedback */
+.flagged {
+    color: #f44336;
+    font-weight: bold;
+}
+
+/* Replies section */
+.replies {
+    margin-left: 20px;
+    margin-top: 10px;
+}
+
+.reply {
+    border-left: 3px solid #888;
+    padding-left: 8px;
+    margin: 6px 0;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    padding: 6px 8px;
+}
+
+/* Reply form */
+.reply-form {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.reply-form textarea {
+    resize: vertical;
+    min-height: 50px;
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.reply-form button {
+    width: fit-content;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    background-color: #2196F3;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.reply-form button:hover {
+    background-color: #1976D2;
+}
+
+/* Card style */
+.card {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #fafafa;
+    padding: 16px;
+    margin: 12px 0;
+}
+
+/* Form inside card */
+.availability-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.availability-form input {
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.availability-form button.btn {
+    width: fit-content;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    background-color: #2196F3;
+    color: #fff;
+    cursor: pointer;
+}
+
+.availability-form button.btn:hover {
+    background-color: #1976D2;
+}
+
+/* Availability card */
+.availability-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.delete-link {
+    color: #f44336;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.delete-link:hover {
+    text-decoration: underline;
+}
+
+/* Info, success, error messages */
+.info-msg { color: #555; font-style: italic; }
+.success-msg { color: #4CAF50; }
+.error-msg { color: #f44336; }

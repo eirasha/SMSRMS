@@ -20,30 +20,62 @@ $pendingPayment = $stmt->fetch(PDO::FETCH_ASSOC)['pendingPayment'];
 $stmt = $conn->query("SELECT COUNT(*) as paidPayment FROM bookings WHERE payment_status='paid'");
 $paidPayment = $stmt->fetch(PDO::FETCH_ASSOC)['paidPayment'];
 ?>
-
-<h2>Admin Dashboard</h2>
-
-<div style="display:flex; gap:20px;">
-    <div style="border:1px solid #ccc; padding:10px; width:150px;">
-        <strong>Total Bookings</strong>
-        <p><?php echo $totalBookings; ?></p>
-    </div>
-    <div style="border:1px solid #ccc; padding:10px; width:150px;">
-        <strong>Completed Bookings</strong>
-        <p><?php echo $completed; ?></p>
-    </div>
-    <div style="border:1px solid #ccc; padding:10px; width:150px;">
-        <strong>Pending Payments</strong>
-        <p><?php echo $pendingPayment; ?></p>
-    </div>
-    <div style="border:1px solid #ccc; padding:10px; width:150px;">
-        <strong>Paid Payments</strong>
-        <p><?php echo $paidPayment; ?></p>
-    </div>
-</div>
-
+ 
 <nav>
-    <a href="bookings.php">Manage Bookings</a> 
-    |<a href="service.php">Manage Services</a> | 
-    <a href="../auth/logout.php">Logout</a>
-</nav>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="header">
+    <div class="header-top">
+        <h1>Admin Dashboard 🌻</h1>
+        <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+    </div>
+    <nav class="nav-bar">
+        <a href="bookings.php">Manage Bookings</a>
+        <a href="service.php">Manage Services</a>
+        <a href="update_payment.php">Manage Payments</a>
+        <a href="feedback.php">Manage Feedback</a>
+        <a href="../auth/logout.php" class="logout">Logout</a>
+    </nav>
+</header>
+
+<main class="main-container">
+    <div class="dashboard-cards">
+        <div class="card">
+            <h3>Total Bookings</h3>
+            <p><?= $totalBookings ?></p>
+        </div>
+        <div class="card">
+            <h3>Completed Bookings</h3>
+            <p><?= $completed ?></p>
+        </div>
+        <div class="card">
+            <h3>Pending Payments</h3>
+            <p><?= $pendingPayment ?></p>
+        </div>
+        <div class="card">
+            <h3>Paid Payments</h3>
+            <p><?= $paidPayment ?></p>
+        </div>
+    </div>
+</main>
+
+<script>
+const toggleBtn = document.querySelector('.nav-toggle');
+const navBar = document.querySelector('.nav-bar');
+
+toggleBtn.addEventListener('click', () => {
+    navBar.classList.toggle('show');
+});
+</script>
+</body>
+</html>
+ 

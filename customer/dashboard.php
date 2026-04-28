@@ -26,7 +26,7 @@ $stmt = $conn->prepare("SELECT COUNT(*) as paidPayment FROM bookings WHERE custo
 $stmt->execute([$customer_id]);
 $paidPayment = $stmt->fetch(PDO::FETCH_ASSOC)['paidPayment'];
 
-// --- Fetch all bookings for slots display ---
+// --- Fetch all bookings ---
 $stmt = $conn->prepare("
     SELECT b.*, s.name AS service_name, m.username AS massager_name
     FROM bookings b
@@ -39,51 +39,93 @@ $stmt->execute([$customer_id]);
 $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<h2>Customer Dashboard</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Dashboard</title>
+<link rel="stylesheet" href="../css/cust.css">
+</head>
+<body>
 
+<header class="header">
+    <h1>Welcome, <?= htmlspecialchars($_SESSION['username']); ?> 🌻</h1>
+    <nav class="nav-bar">
+        <a href="dashboard.php">Dashboard</a>
+        <a href="book_service.php">Book Slot</a>
+        <a href="my_bookings.php">My Bookings</a>
+        <a href="payment.php">Payments</a>
+        <a href="feedback.php">Feedback</a>
+        <a href="../auth/logout.php">Logout</a>
+    </nav>
+</header>
 
+<div class="page-content">
 
-<!-- Booking Slots -->
-<h2>My Bookings</h2>
+    <!-- Dashboard Cards -->
+    <div class="dashboard-cards">
+        <div class="card">
+            <h3>Total Bookings</h3>
+            <p><?= $totalBookings ?></p>
+        </div>
+        <div class="card">
+            <h3>Completed</h3>
+            <p><?= $completed ?></p>
+        </div>
+        <div class="card">
+            <h3>Pending Payment</h3>
+            <p><?= $pendingPayment ?></p>
+        </div>
+        <div class="card">
+            <h3>Paid</h3>
+            <p><?= $paidPayment ?></p>
+        </div>
+    </div>
 
-<?php if(count($bookings) == 0): ?>
-    <p>No bookings found.</p>
-<?php else: ?>
-<table border="1" cellpadding="5">
-    <tr>
-        <th>Service</th>
-        <th>Massager</th>
-        <th>Date</th>
-        <th>Time</th>
-        <th>Status</th>
-        <th>Payment Status</th>
-        <th>Action</th>
-    </tr>
-    <?php foreach($bookings as $b): ?>
-    <tr>
-        <td><?php echo htmlspecialchars($b['service_name']); ?></td>
-        <td><?php echo htmlspecialchars($b['massager_name'] ?? '-'); ?></td>
-        <td><?php echo $b['booking_date']; ?></td>
-        <td><?php echo $b['booking_time']; ?></td>
-        <td><?php echo ucfirst($b['status']); ?></td>
-        <td><?php echo ucfirst($b['payment_status']); ?></td>
-        <td>
-            <?php if($b['payment_status']=='pending'): ?>
-                <a href="payment.php?booking_id=<?php echo $b['id']; ?>">Pay Now</a>
-            <?php else: ?>
-                -
-            <?php endif; ?>
-        </td>
-    </tr>
-    <?php endforeach; ?>
-</table>
-<?php endif; ?>
+    <!-- Bookings Table -->
+    <h2>My Bookings </h2>
 
-<!-- Navigation -->
-<nav>
-    <a href="dashboard.php">Dashboard</a> |
-    <a href="book.php">Book Slot</a> |  
-    <a href="my_booking.php">My Bookings</a> | 
-    <a href="payment.php">Payments</a> | 
-    <a href="../auth/logout.php">Logout</a>
-</nav>
+    <div class="table-wrapper">
+        <?php if(count($bookings) == 0): ?>
+            <p>No bookings found.</p>
+        <?php else: ?>
+            <table class="booking-table">
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Massager</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th>Payment Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach($bookings as $b): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($b['service_name']); ?></td>
+                        <td><?= htmlspecialchars($b['massager_name'] ?? '-'); ?></td>
+                        <td><?= $b['booking_date']; ?></td>
+                        <td><?= $b['booking_time']; ?></td>
+                        <td><?= ucfirst($b['status']); ?></td>
+                        <td><?= ucfirst($b['payment_status']); ?></td>
+                        <td>
+                            <?php if($b['payment_status']=='pending'): ?>
+                                <a href="payment.php?booking_id=<?= $b['id']; ?>">Pay Now</a>
+                            <?php else: ?>
+                                -
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
+    </div>
+
+</div>
+
+</body>
+</html>

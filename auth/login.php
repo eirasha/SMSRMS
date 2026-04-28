@@ -41,14 +41,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 ?>
 
-<h2>Login</h2>
 
 <!-- Display errors -->
 <?php if (isset($error)) { echo "<p style='color:red;'>$error</p>"; } ?>
 
-<form method="post">
-    Username or Email: <input type="text" name="userInput" value="<?php echo isset($userInput) ? htmlspecialchars($userInput) : ''; ?>" required><br>
-    Password: <input type="password" name="password" required><br><br>
-    <button type="submit">Login</button>
-</form>
-<p>Don't have an account? <a href="register.php">Register here</a></p>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Sunflower Theme</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<div class="auth-container">
+    <div style="display: flex; justify-content: center;">
+  <img src="/SMSRMS/uploads/logo.png" alt="System Logo">
+</div>
+
+    <h2>
+        <p style="font-family: Poppins; font-style: ; font-weight: bold;">
+
+    Login </p> </h2>
+
+    <?php if (isset($error)) : ?>
+        <div class="alert error"><?= $error ?></div>
+    <?php endif; ?>
+
+    <form method="post" class="auth-form">
+        <label>Username or Email</label>
+        <input type="text" name="userInput" value="<?= isset($userInput) ? htmlspecialchars($userInput) : '' ?>" required>
+
+        <label>Password</label>
+        <input type="password" name="password" required>
+
+        <button type="submit" class="btn">Login</button>
+    </form>
+
+    <p class="login-link">Don't have an account? <a href="register.php">Register here</a></p>
+</div>
+
+</body>
+</html>
