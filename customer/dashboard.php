@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'customer') {
 
 $customer_id = $_SESSION['user_id'];
 
-// --- 1. Dashboard Stats (Optimized single query) ---
+// --- 1. Dashboard Stats ---
 $stmt = $conn->prepare("SELECT 
     COUNT(*) as total, 
     SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END) as completed,
@@ -20,11 +20,15 @@ $stmt = $conn->prepare("SELECT
 $stmt->execute([$customer_id]);
 $stats = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// --- 2. Fetch Available Services for Quick Booking ---
+// --- 2. Fetch Available Services for Horizontal Cards ---
 $stmt_services = $conn->query("SELECT * FROM services LIMIT 5");
 $quick_services = $stmt_services->fetchAll(PDO::FETCH_ASSOC);
 
-// --- 3. Fetch Recent Bookings ---
+// --- 3. Fetch Massagers for the Booking Dropdown ---
+$stmt_massagers = $conn->query("SELECT id, username FROM users WHERE role = 'massager'");
+$massagers = $stmt_massagers->fetchAll(PDO::FETCH_ASSOC);
+
+// --- 4. Fetch Recent Bookings for the Table ---
 $stmt = $conn->prepare("
     SELECT b.*, s.name AS service_name, m.username AS massager_name
     FROM bookings b
@@ -43,7 +47,7 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer Dashboard | Sunflower</title>
-    <!-- Versioning added to force browser to load new CSS -->
+    <!-- Version cache buster -->
     <link rel="stylesheet" href="http://localhost/SMSRMS/css/cust.css?v=<?= time(); ?>">
 </head>
 <body>
@@ -54,14 +58,11 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <span class="brand-name">SUNFLOWER</span>
     </div>
 
-    <!-- The Hamburger Icon for Mobile -->
+    <!-- Mobile Hamburger Menu Icon -->
     <div class="hamburger" id="hamburger">
-        <span></span>
-        <span></span>
-        <span></span>
+        <span></span><span></span><span></span>
     </div>
 
-    <!-- Navigation Links -->
     <nav class="nav-bar" id="nav-menu">
         <a href="dashboard.php" class="active">Dashboard</a>
         <a href="book_service.php">Book Slot</a>
@@ -70,6 +71,21 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <a href="../auth/logout.php" class="logout">Logout</a>
     </nav>
 </header>
+
+<!-- Expert Feature: Alert Messages -->
+<?php if (isset($_SESSION['error_msg'])): ?>
+    <div class="alert alert-error">
+        <?= $_SESSION['error_msg']; ?>
+        <?php unset($_SESSION['error_msg']); ?>
+    </div>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['success_msg'])): ?>
+    <div class="alert alert-success">
+        <?= $_SESSION['success_msg']; ?>
+        <?php unset($_SESSION['success_msg']); ?>
+    </div>
+<?php endif; ?>
 
 <main class="main-wrapper">
     <div class="page-container">
@@ -91,7 +107,6 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php foreach($quick_services as $service): ?>
                 <div class="service-card">
                     <div class="service-img-wrapper">
-                        <!-- Use default_service.jpg if image_path is empty -->
                         <img src="../uploads/<?= htmlspecialchars($service['image_path'] ?? 'default_service.jpg'); ?>" alt="<?= htmlspecialchars($service['name']); ?>" class="service-img">
                         <span class="service-price">RM <?= number_format($service['price'] ?? 0, 2); ?></span>
                     </div>
@@ -199,11 +214,23 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
         
         <form action="../actions/process_booking.php" method="POST" id="quickBookForm">
+            <!-- Hidden ID field populated by Javascript -->
             <input type="hidden" name="service_id" id="modalServiceId" value="">
             
             <div class="form-group">
                 <label>Selected Service</label>
                 <input type="text" id="modalServiceName" readonly class="form-control readonly-input">
+            </div>
+
+            <!-- Intelligent Hybrid Massager Dropdown -->
+            <div class="form-group">
+                <label>Select Specialist</label>
+                <select name="massager_id" class="form-control" required>
+                    <option value="any">✨ Any Available Specialist (Fastest)</option>
+                    <?php foreach($massagers as $m): ?>
+                        <option value="<?= $m['id'] ?>">👤 <?= htmlspecialchars($m['username']) ?></option>
+                    <?php endforeach; ?>
+                </select>
             </div>
 
             <div class="form-group">
@@ -227,7 +254,6 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
-<!-- JavaScript for Mobile Menu AND Modal -->
 <script>
     // --- Mobile Hamburger Menu Logic ---
     const hamburger = document.getElementById('hamburger');
@@ -252,6 +278,7 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
     const modalServiceName = document.getElementById('modalServiceName');
     const openButtons = document.querySelectorAll('.open-modal-btn');
 
+    // Opens popup and injects the service name/id
     openButtons.forEach(button => {
         button.addEventListener('click', () => {
             modalServiceId.value = button.getAttribute('data-id');
@@ -264,6 +291,7 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
         modal.classList.remove('active');
     });
 
+    // Closes popup if user clicks outside the box
     window.addEventListener('click', (e) => {
         if (e.target === modal) {
             modal.classList.remove('active');

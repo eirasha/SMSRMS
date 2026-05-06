@@ -13,61 +13,82 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $service_id = $_POST['service_id'];
     $booking_date = $_POST['booking_date'];
     $booking_time = $_POST['booking_time'];
+    $requested_massager = $_POST['massager_id']; // Can be an ID or the word 'any'
     
-    // Defaulting massager ID to 2 for now. 
-    // If you have a dropdown in the modal for massagers, change this to: $_POST['massager_id']
-    $massager_id = 2; 
+    $final_massager_id = null;
 
     try {
         // ==========================================
-        // 1. THE ANTI-OVERLAP CHECK
+        // SCENARIO A: CUSTOMER CHOSE "ANY AVAILABLE"
         // ==========================================
-        $stmt = $conn->prepare("
-            SELECT id FROM bookings 
-            WHERE massager_id = ? 
-            AND booking_date = ? 
-            AND booking_time = ? 
-            AND status != 'cancelled'
-        ");
-        $stmt->execute([$massager_id, $booking_date, $booking_time]);
-        
-        if ($stmt->rowCount() > 0) {
-            // CONFLICT FOUND!
-            $_SESSION['error_msg'] = "Sorry, that time slot is already taken. Please choose another time.";
-            header("Location: ../customer/dashboard.php");
-            exit;
+        if ($requested_massager === 'any') {
+            // Find a random massager who is completely free at this exact date and time
+            $stmt = $conn->prepare("
+                SELECT id FROM users 
+                WHERE role = 'massager' AND status = 'active'
+                AND id NOT IN (
+                    SELECT massager_id FROM bookings 
+                    WHERE booking_date = ? 
+                    AND booking_time = ? 
+                    AND status != 'cancelled'
+                )
+                ORDER BY RAND() LIMIT 1
+            ");
+            $stmt->execute([$booking_date, $booking_time]);
+            
+            if ($stmt->rowCount() == 0) {
+                $_SESSION['error_msg'] = "Sorry, all our specialists are fully booked at that time. Please try another slot.";
+                header("Location: ../customer/dashboard.php");
+                exit;
+            }
+            $final_massager_id = $stmt->fetchColumn();
+
+        } 
+        // ==========================================
+        // SCENARIO B: CUSTOMER CHOSE A SPECIFIC PERSON
+        // ==========================================
+        else {
+            $final_massager_id = $requested_massager;
+            // Check if THIS specific person is free
+            $stmt = $conn->prepare("
+                SELECT id FROM bookings 
+                WHERE massager_id = ? AND booking_date = ? AND booking_time = ? AND status != 'cancelled'
+            ");
+            $stmt->execute([$final_massager_id, $booking_date, $booking_time]);
+            
+            if ($stmt->rowCount() > 0) {
+                $_SESSION['error_msg'] = "Sorry, that specific specialist is already booked at that time.";
+                header("Location: ../customer/dashboard.php");
+                exit;
+            }
         }
 
         // ==========================================
-        // 2. INSERT THE BOOKING
+        // INSERT THE BOOKING
         // ==========================================
         $insert_stmt = $conn->prepare("
             INSERT INTO bookings (customer_id, service_id, massager_id, booking_date, booking_time, status, payment_status) 
             VALUES (?, ?, ?, ?, ?, 'pending', 'pending')
         ");
-        $insert_stmt->execute([$customer_id, $service_id, $massager_id, $booking_date, $booking_time]);
-        
+        $insert_stmt->execute([$customer_id, $service_id, $final_massager_id, $booking_date, $booking_time]);
         $new_booking_id = $conn->lastInsertId();
 
         // ==========================================
-        // 3. SEND NOTIFICATION TO THE MASSAGER
+        // SEND NOTIFICATION TO THE ASSIGNED MASSAGER
         // ==========================================
         $customer_name = $_SESSION['username'];
-        $alert_message = "New Booking! $customer_name booked a slot on $booking_date at " . date("h:i A", strtotime($booking_time));
+        $alert_message = "New Booking! $customer_name has booked a slot on $booking_date at " . date("h:i A", strtotime($booking_time));
         
-        // Make sure you ran the CREATE TABLE notifications query in phpMyAdmin!
         $notif_stmt = $conn->prepare("
             INSERT INTO notifications (user_id, booking_id, message) 
             VALUES (?, ?, ?)
         ");
-        $notif_stmt->execute([$massager_id, $new_booking_id, $alert_message]);
+        $notif_stmt->execute([$final_massager_id, $new_booking_id, $alert_message]);
 
         // ==========================================
-        // 4. SUCCESS REDIRECT
+        // SUCCESS REDIRECT
         // ==========================================
-        $_SESSION['success_msg'] = "Booking successful! The massager has been notified.";
-        
-        // Redirect back to dashboard (or you can change this to payment.php)
+        $_SESSION['success_msg'] = "Booking successful! Your specialist has been notified.";
         header("Location: ../customer/dashboard.php");
         exit;
 
