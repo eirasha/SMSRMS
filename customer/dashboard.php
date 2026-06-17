@@ -203,9 +203,6 @@ $bookings = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </main>
 
-<!-- ==============================================
-     THE BOOKING MODAL (POPUP)
-=============================================== -->
 <div class="modal-overlay" id="bookingModal">
     <div class="modal-content glass-panel">
         <div class="modal-header">
