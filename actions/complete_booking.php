@@ -4,25 +4,22 @@ require_once __DIR__ . '/../config/db.php';
 
 header('Content-Type: application/json');
 
-// Auth check
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'massager') {
     echo json_encode(['status' => 'error', 'message' => 'Unauthorized.']);
     exit;
 }
 
-// Method check
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['status' => 'error', 'message' => 'Invalid request method.']);
     exit;
 }
 
-// CSRF check
 if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])) {
     echo json_encode(['status' => 'error', 'message' => 'Security token expired. Please refresh the page.']);
     exit;
 }
 
-$booking_id  = isset($_POST['booking_id']) ? (int)$_POST['booking_id'] : 0;
+$booking_id = isset($_POST['booking_id']) ? (int)$_POST['booking_id'] : 0;
 $massager_id = $_SESSION['user_id'];
 
 if (!$booking_id) {
@@ -31,7 +28,7 @@ if (!$booking_id) {
 }
 
 try {
-    // Verify the booking belongs to this massager and is in a completable state
+    // Verify booking
     $stmt = $conn->prepare("
         SELECT id, status, payment_status 
         FROM bookings 
@@ -60,13 +57,20 @@ try {
         exit;
     }
 
-    // Mark as completed
-    $stmt = $conn->prepare("UPDATE bookings SET status = 'completed' WHERE id = ? AND massager_id = ?");
+    // Update booking - WITHOUT completed_at
+    $stmt = $conn->prepare("
+        UPDATE bookings 
+        SET status = 'completed' 
+        WHERE id = ? AND massager_id = ?
+    ");
     $stmt->execute([$booking_id, $massager_id]);
 
-    echo json_encode(['status' => 'success', 'message' => 'Session marked as completed.']);
+    echo json_encode(['status' => 'success', 'message' => 'Session marked as completed successfully!']);
 
 } catch (PDOException $e) {
     error_log("complete_booking.php error: " . $e->getMessage());
-    echo json_encode(['status' => 'error', 'message' => 'A server error occurred. Please try again.']);
+    echo json_encode([
+        'status' => 'error', 
+        'message' => 'Database Error: ' . $e->getMessage()
+    ]);
 }

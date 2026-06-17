@@ -1,52 +1,52 @@
 <?php
 session_start();
-require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../../config/db.php';
 
-// Security Check
+// High-End Security
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header("Location: ../auth/login.php");
+    header("Location: ../../auth/login.php");
     exit;
 }
 
-// Handle Form Submissions (Add, Edit, Delete)
+// Handle Form Submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     $id = $_POST['id'] ?? null;
     $name = trim($_POST['name'] ?? '');
-    $price = $_POST['price'] ?? 0;
-    $desc = trim($_POST['description'] ?? '');
+    $phone = trim($_POST['phone'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $status = $_POST['status'] ?? 1;
 
     try {
         if ($action === 'add' && !empty($name)) {
-            $stmt = $conn->prepare("INSERT INTO services (name, description, price) VALUES (?, ?, ?)");
-            $stmt->execute([$name, $desc, $price]);
-            header("Location: service.php");
-            exit;
+            $conn->beginTransaction();
+            $stmt1 = $conn->prepare("INSERT INTO users (username, email, password, role, status) VALUES (?, ?, ?, 'massager', 1)");
+            $stmt1->execute([strtolower(str_replace(' ', '_', $name)), $email, password_hash('password123', PASSWORD_DEFAULT)]);
+            $new_user_id = $conn->lastInsertId();
+            
+            $stmt2 = $conn->prepare("INSERT INTO massagers (user_id, name, phone, email, status) VALUES (?, ?, ?, ?, ?)");
+            $stmt2->execute([$new_user_id, $name, $phone, $email, $status]);
+            $conn->commit();
         } elseif ($action === 'edit' && $id) {
-            $stmt = $conn->prepare("UPDATE services SET name=?, description=?, price=? WHERE id=?");
-            $stmt->execute([$name, $desc, $price, $id]);
-            header("Location: service.php");
-            exit;
-        } elseif ($action === 'delete' && $id) {
-            $stmt = $conn->prepare("DELETE FROM services WHERE id=?");
-            $stmt->execute([$id]);
-            header("Location: service.php");
-            exit;
+            $stmt = $conn->prepare("UPDATE massagers SET name=?, phone=?, email=?, status=? WHERE id=?");
+            $stmt->execute([$name, $phone, $email, $status, $id]);
         }
     } catch (PDOException $e) {
-        die("❌ Database Error: " . $e->getMessage());
+        if (isset($conn)) $conn->rollBack();
+        die("Database Error: " . $e->getMessage());
     }
+    header("Location: massagers.php");
+    exit;
 }
 
-// Fetch Services
-$services = $conn->query("SELECT * FROM services ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
+$massagers = $conn->query("SELECT * FROM massagers")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Services | Admin</title>
+    <title>Manage Massagers | Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     <style>
@@ -80,7 +80,7 @@ $services = $conn->query("SELECT * FROM services ORDER BY id ASC")->fetchAll(PDO
             display: flex;
         }
 
-        /* ── SIDEBAR ── */
+        /* Sidebar */
         .sidebar {
             width: 260px;
             background: var(--dark);
@@ -93,40 +93,66 @@ $services = $conn->query("SELECT * FROM services ORDER BY id ASC")->fetchAll(PDO
             box-shadow: 4px 0 24px rgba(0,0,0,0.15);
             z-index: 100;
         }
+
         .brand {
             padding: 30px 24px;
-            display: flex; align-items: center; gap: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
             border-bottom: 1px solid rgba(255,255,255,0.05);
             margin-bottom: 20px;
         }
-        .brand-logo {
-            width: 36px; height: 36px;
-            background: var(--gold);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem;
-        }
+
         .brand-name {
             font-family: 'Playfair Display', serif;
             font-size: 1.25rem;
             color: var(--gold-light);
             letter-spacing: 2px;
         }
+
         .nav-links {
-            display: flex; flex-direction: column; gap: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
             padding: 0 16px;
-            flex-grow: 1;
+            flex: 1;
         }
+
         .nav-links a {
-            text-decoration: none; font-size: 0.95rem; font-weight: 500;
-            color: #c4b08a; padding: 12px 18px; border-radius: 8px;
-            transition: all 0.2s; display: flex; align-items: center; gap: 12px;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #c4b08a;
+            padding: 12px 18px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-        .nav-links a:hover, .nav-links a.active {
-            color: var(--gold-light); background: rgba(244,208,63,0.08);
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--gold-light);
+            background: rgba(244,208,63,0.08);
         }
-        .nav-links a.logout { color: #e57373; margin-top: auto; margin-bottom: 24px; }
-        .nav-links a.logout:hover { background: rgba(229,115,115,0.1); }
+
+        .nav-links a.logout {
+            color: #e57373;
+            margin-top: auto;
+            margin-bottom: 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a.logout:hover {
+            background: rgba(229,115,115,0.1);
+            color: #ff8a8a;
+        }
+
+        .nav-links a.logout span {
+            margin-right: 8px;
+        }
 
         /* ── MAIN CONTENT ── */
         .main-content {
@@ -181,10 +207,7 @@ $services = $conn->query("SELECT * FROM services ORDER BY id ASC")->fetchAll(PDO
         tr:last-child td { border-bottom: none; }
         tr:hover td { background: var(--gold-pale); }
 
-        .service-name { font-weight: 600; color: var(--dark); font-size: 1rem; }
-        .service-desc { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; line-height: 1.4; max-width: 400px; }
-
-        /* ── BUTTONS ── */
+        /* ── BUTTONS & BADGES ── */
         .btn {
             padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-family: inherit;
             font-weight: 600; background: var(--gold); color: var(--dark); border: none;
@@ -222,6 +245,13 @@ $services = $conn->query("SELECT * FROM services ORDER BY id ASC")->fetchAll(PDO
             background: var(--red);
             color: var(--white);
         }
+        
+        .badge {
+            display: inline-block; padding: 5px 12px; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .badge-available { background: var(--green-light); color: var(--green); }
+        .badge-busy { background: var(--amber-light); color: var(--amber); }
 
         /* ── MODAL OVERLAY ── */
         .modal-overlay { 
@@ -253,13 +283,12 @@ $services = $conn->query("SELECT * FROM services ORDER BY id ASC")->fetchAll(PDO
             display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted);
             margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;
         }
-        .auth-form input, .auth-form textarea {
+        .auth-form input, .auth-form select {
             width: 100%; padding: 12px 14px; margin-bottom: 20px; border: 1px solid var(--border);
             border-radius: 8px; font-family: inherit; font-size: 0.95rem; color: var(--dark);
             background: var(--white); transition: all 0.2s; box-sizing: border-box;
         }
-        .auth-form textarea { resize: vertical; min-height: 100px; }
-        .auth-form input:focus, .auth-form textarea:focus {
+        .auth-form input:focus, .auth-form select:focus {
             outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.15);
         }
 
@@ -281,65 +310,71 @@ $services = $conn->query("SELECT * FROM services ORDER BY id ASC")->fetchAll(PDO
 </head>
 <body>
     
-    <aside class="sidebar">
-        <div class="brand">
-            <img src="../uploads/logo.png" alt="Sunflower Logo" style="height: 40px; width: 40px; object-fit: contain; border-radius: 50%;">
-            <span class="brand-name">SUNFLOWER</span>
-        </div>
-        <nav class="nav-links">
-              <a href="dashboard.php">Dashboard</a>
-            <a href="bookings.php" >Manage Reservation</a>
-            <a href="assign/massagers.php">Manage Massagers</a>
-            <a href="service.php" class="active"  >Manage Services</a>
-            <a href="transactions.php">Manage Payments</a>
-            <a href="availability.php">Manage Availability</a>
-            <a href="feedback.php">Manage Feedback</a>
-            <a href="reports.php">Generate Reports</a>
-        <a href="../auth/logout.php" class="logout"><span>🚪</span> <span>Logout</span></a>
-        </nav>
-    </aside>
+   <aside class="sidebar">
+    <div class="brand">
+        <img src="../../uploads/logo.png" alt="Sunflower Logo" style="height: 40px; width: 40px; object-fit: contain; border-radius: 50%;">
+        <span class="brand-name">SUNFLOWER</span>
+    </div>
+
+    <nav class="nav-links">
+        <a href="/SMSRMS/admin/dashboard.php">Dashboard</a>
+        <a href="/SMSRMS/admin/bookings.php">Manage Reservation</a>
+        <a href="/SMSRMS/admin/assign/massagers.php" class="active">Manage Massagers</a>
+        <a href="/SMSRMS/admin/service.php">Manage Services</a>
+        <a href="/SMSRMS/admin/transactions.php">Manage Payments</a>
+        <a href="/SMSRMS/admin/availability.php">Manage Availability</a>
+        <a href="/SMSRMS/admin/feedback.php">Manage Feedback</a>
+        <a href="/SMSRMS/admin/reports.php">Generate Reports</a>
+        <a href="/SMSRMS/auth/logout.php" class="logout">
+            <span>🚪</span>
+            <span>Logout</span>
+        </a>
+    </nav>
+</aside>
 
     <main class="main-content">
         <div class="welcome">
-            <h1>Service Menu Catalog</h1>
-            <p class="welcome-desc">Create, modify, and manage the massage treatments offered to customers.</p>
+            <h1>Staff Directory</h1>
+            <p class="welcome-desc">Manage your therapist roster, update contact details, and adjust active status.</p>
         </div>
 
         <div class="card">
             <div class="card-header">
-                <h2>Active Services</h2>
-                <button onclick="openAddModal()" class="btn">+ Add New Service</button>
+                <h2>Active Massagers</h2>
+                <button onclick="openAddModal()" class="btn">+ Add New Massager</button>
             </div>
             
             <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
-                            <th>Treatment Name</th>
-                            <th>Description</th>
-                            <th>Price</th>
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                            <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (count($services) === 0): ?>
-                            <tr><td colspan="4" style="text-align: center; padding: 30px; color: var(--text-muted);">No services configured in the system.</td></tr>
+                        <?php if (count($massagers) === 0): ?>
+                            <tr><td colspan="5" style="text-align: center; padding: 30px; color: var(--text-muted);">No massagers added yet.</td></tr>
                         <?php endif; ?>
                         
-                        <?php foreach($services as $s): ?>
+                        <?php foreach ($massagers as $m): ?>
                         <tr>
+                            <td><strong style="color: var(--dark);"><?= htmlspecialchars($m['name']) ?></strong></td>
+                            <td style="color: var(--text-muted);"><?= htmlspecialchars($m['phone']) ?></td>
+                            <td><?= htmlspecialchars($m['email']) ?></td>
                             <td>
-                                <div class="service-name"><?= htmlspecialchars($s['name']) ?></div>
+                                <?php if($m['status'] == 1): ?>
+                                    <span class="badge badge-available">Available</span>
+                                <?php else: ?>
+                                    <span class="badge badge-busy">Busy / Inactive</span>
+                                <?php endif; ?>
                             </td>
                             <td>
-                                <div class="service-desc"><?= htmlspecialchars($s['description']) ?></div>
-                            </td>
-                            <td>
-                                <strong style="color: var(--green);">RM <?= number_format($s['price'], 2) ?></strong>
-                            </td>
-                            <td>
-                                <button class="btn-action btn-edit" onclick="openEditModal(<?= htmlspecialchars(json_encode($s)) ?>)">Edit</button>
-                                <button class="btn-action btn-delete" onclick="deleteService(<?= $s['id'] ?>)">Delete</button>
+                                <button class="btn-action btn-edit" onclick="openEditModal(<?= htmlspecialchars(json_encode($m)) ?>)">Edit</button>
+                                <a href="delete_massager.php?id=<?= $m['id'] ?>" class="btn-action btn-delete">Delete</a>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -349,21 +384,27 @@ $services = $conn->query("SELECT * FROM services ORDER BY id ASC")->fetchAll(PDO
         </div>
     </main>
 
-    <div class="modal-overlay" id="serviceModal">
+    <div class="modal-overlay" id="massagerModal">
         <div class="modal-content">
-            <h2 id="modalTitle">Add New Service</h2>
-            <form class="auth-form" method="POST" action="service.php">
-                <input type="hidden" name="action" id="formAction" value="add"> 
-                <input type="hidden" name="id" id="serviceId" value=""> 
+            <h2 id="modalTitle">Add New Massager</h2>
+            <form class="auth-form" method="POST" action="massagers.php">
+                <input type="hidden" name="action" id="formAction" value="add">
+                <input type="hidden" name="id" id="massagerId">
                 
-                <label>Service Name</label>
-                <input type="text" name="name" id="serviceName" placeholder="e.g. Deep Tissue Massage" required>
+                <label>Full Name</label>
+                <input type="text" name="name" id="name" placeholder="e.g. Jane Doe" required>
                 
-                <label>Price (RM)</label>
-                <input type="number" name="price" id="servicePrice" step="0.01" placeholder="e.g. 150.00" required>
+                <label>Phone Number</label>
+                <input type="text" name="phone" id="phone" placeholder="e.g. 0123456789" required>
                 
-                <label>Description</label>
-                <textarea name="description" id="serviceDesc" placeholder="Describe the benefits and details of this treatment..."></textarea>
+                <label>Email Address</label>
+                <input type="email" name="email" id="email" placeholder="jane@sunflower.com" required>
+                
+                <label>System Status</label>
+                <select name="status" id="status">
+                    <option value="1">Available (Active)</option>
+                    <option value="0">Busy (Inactive)</option>
+                </select>
                 
                 <button type="submit" class="btn" style="width:100%;">Save Details</button>
                 <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
@@ -372,64 +413,41 @@ $services = $conn->query("SELECT * FROM services ORDER BY id ASC")->fetchAll(PDO
     </div>
 
     <script>
-        // Modal Logic with smooth fade transitions
-        const modal = document.getElementById('serviceModal');
-
+        const modal = document.getElementById('massagerModal');
+        
         function openAddModal() {
-            document.getElementById('modalTitle').innerText = 'Add New Service';
+            document.getElementById('modalTitle').innerText = 'Add New Massager';
             document.getElementById('formAction').value = 'add';
-            document.getElementById('serviceId').value = '';
-            document.getElementById('serviceName').value = '';
-            document.getElementById('servicePrice').value = '';
-            document.getElementById('serviceDesc').value = '';
+            document.getElementById('massagerId').value = '';
+            document.getElementById('name').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('status').value = '1';
             
-            modal.style.display = 'flex';
-            setTimeout(() => { modal.classList.add('active'); }, 10);
+            modal.style.display = 'flex'; // Make visible first
+            setTimeout(() => { modal.classList.add('active'); }, 10); // Then fade in
         }
-
+        
         function openEditModal(data) {
-            document.getElementById('modalTitle').innerText = 'Edit Treatment Options';
+            document.getElementById('modalTitle').innerText = 'Edit Profile';
             document.getElementById('formAction').value = 'edit';
-            document.getElementById('serviceId').value = data.id;
-            document.getElementById('serviceName').value = data.name;
-            document.getElementById('servicePrice').value = data.price;
-            document.getElementById('serviceDesc').value = data.description;
+            document.getElementById('massagerId').value = data.id;
+            document.getElementById('name').value = data.name;
+            document.getElementById('phone').value = data.phone;
+            document.getElementById('email').value = data.email;
+            document.getElementById('status').value = data.status;
             
             modal.style.display = 'flex';
             setTimeout(() => { modal.classList.add('active'); }, 10);
         }
-
-        function closeModal() {
-            modal.classList.remove('active');
-            setTimeout(() => { modal.style.display = 'none'; }, 300);
+        
+        function closeModal() { 
+            modal.classList.remove('active'); 
+            setTimeout(() => { modal.style.display = 'none'; }, 300); // Wait for fade out
         }
         
         window.onclick = (e) => { 
             if (e.target == modal) closeModal(); 
-        }
-
-        // Delete Logic utilizing standard form submission
-        function deleteService(id) {
-            if(confirm('⚠️ WARNING: Are you sure you want to completely remove this service from the system?')) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = 'service.php';
-                
-                const actionInput = document.createElement('input');
-                actionInput.type = 'hidden';
-                actionInput.name = 'action';
-                actionInput.value = 'delete';
-                
-                const idInput = document.createElement('input');
-                idInput.type = 'hidden';
-                idInput.name = 'id';
-                idInput.value = id;
-                
-                form.appendChild(actionInput);
-                form.appendChild(idInput);
-                document.body.appendChild(form);
-                form.submit();
-            }
         }
     </script>
 </body>

@@ -1,8 +1,8 @@
 <?php
 $host = "localhost";
-$user = "root";  // default XAMPP
-$pass = "";      // default XAMPP
 $dbname = "smsrms";
+$user = "root";
+$pass = ""; 
 
 try {
     $conn = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);
